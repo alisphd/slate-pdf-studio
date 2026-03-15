@@ -1,0 +1,4 @@
+﻿node_modules/
+__pycache__/
+server.out.log
+server.err.log

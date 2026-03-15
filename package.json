@@ -1,0 +1,11 @@
+﻿{
+  "name": "slate-pdf-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "Static browser-based PDF tools ready for GitHub Pages.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/smoke-test.js && node tests/pdf-toolkit-smoke.js"
+  }
+}

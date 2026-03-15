@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slate PDF Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="header">
+        <p class="eyebrow">Slate PDF Studio</p>
+        <h1>Professional PDF tools that stay in your browser.</h1>
+        <p class="intro">
+          Convert, merge, extract, and rearrange files without uploading a single document.
+        </p>
+      </header>
+
+      <section class="panel" aria-label="PDF tools">
+        <div class="mode-switch" role="tablist" aria-label="Tool mode">
+          <button class="mode-button is-active" type="button" role="tab" aria-selected="true" data-mode="jpg-to-pdf">
+            JPG to PDF
+          </button>
+          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="pdf-to-images">
+            PDF to Images
+          </button>
+          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="merge-pdf">
+            Merge PDFs
+          </button>
+          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="extract-pages">
+            Extract Pages
+          </button>
+          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="reorder-pages">
+            Reorder Pages
+          </button>
+        </div>
+
+        <p id="server-note" class="note" data-kind="muted">
+          Runs entirely in your browser. No uploads or server processing.
+        </p>
+
+        <section id="jpg-panel" class="tool-panel" aria-label="JPG to PDF">
+          <div id="jpg-dropzone" class="dropzone" tabindex="0" role="button" aria-controls="jpg-input" aria-label="Choose JPG files or drop them here">
+            <strong>Add JPG files</strong>
+            <span>Drop images here or click to browse.</span>
+          </div>
+          <input id="jpg-input" type="file" accept=".jpg,.jpeg,image/jpeg" multiple hidden />
+
+          <div class="fields four-up">
+            <label class="field">
+              <span>Output name</span>
+              <input id="jpg-name" type="text" value="images" maxlength="80" />
+            </label>
+            <label class="field">
+              <span>Paper</span>
+              <select id="jpg-page-size">
+                <option value="a4">A4</option>
+                <option value="letter">Letter</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Orientation</span>
+              <select id="jpg-page-orientation">
+                <option value="auto">Auto</option>
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Margin</span>
+              <select id="jpg-margin">
+                <option value="0">0 mm</option>
+                <option value="8">8 mm</option>
+                <option value="12" selected>12 mm</option>
+                <option value="18">18 mm</option>
+                <option value="24">24 mm</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="toolbar">
+            <button id="jpg-pick" type="button">Choose JPGs</button>
+            <button id="jpg-convert" class="primary" type="button" disabled>Create PDF</button>
+            <button id="jpg-clear" type="button" disabled>Clear</button>
+          </div>
+
+          <p id="jpg-status" class="status" data-kind="muted">No JPG files selected.</p>
+          <div id="jpg-empty" class="empty-state">No files yet.</div>
+          <div id="jpg-list" class="stack" aria-live="polite"></div>
+        </section>
+
+        <section id="images-panel" class="tool-panel" aria-label="PDF to images" hidden>
+          <div id="images-dropzone" class="dropzone" tabindex="0" role="button" aria-controls="images-input" aria-label="Choose a PDF file or drop it here">
+            <strong>Add one PDF</strong>
+            <span>Export each page as a PNG or JPG.</span>
+          </div>
+          <input id="images-input" type="file" accept=".pdf,application/pdf" hidden />
+
+          <div class="fields three-up">
+            <label class="field">
+              <span>Image format</span>
+              <select id="images-format">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Quality</span>
+              <select id="images-dpi">
+                <option value="96">96 dpi</option>
+                <option value="144" selected>144 dpi</option>
+                <option value="200">200 dpi</option>
+                <option value="300">300 dpi</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Output name</span>
+              <input id="images-name" type="text" value="pages" maxlength="80" />
+            </label>
+          </div>
+
+          <div class="toolbar">
+            <button id="images-pick" type="button">Choose PDF</button>
+            <button id="images-convert" class="primary" type="button" disabled>Export Images</button>
+            <button id="images-clear" type="button" disabled>Clear</button>
+          </div>
+
+          <p id="images-status" class="status" data-kind="muted">No PDF selected.</p>
+          <div id="images-summary" class="empty-state">No file selected.</div>
+
+          <section id="images-results-wrap" class="results-wrap" hidden>
+            <div class="results-head">
+              <h2>Images</h2>
+              <button id="images-download-all" type="button" hidden>Download all</button>
+            </div>
+            <div id="images-results" class="result-grid" aria-live="polite"></div>
+          </section>
+        </section>
+
+        <section id="merge-panel" class="tool-panel" aria-label="Merge PDFs" hidden>
+          <div id="merge-dropzone" class="dropzone" tabindex="0" role="button" aria-controls="merge-input" aria-label="Choose PDF files or drop them here">
+            <strong>Add PDF files</strong>
+            <span>Drop two or more files here or click to browse.</span>
+          </div>
+          <input id="merge-input" type="file" accept=".pdf,application/pdf" multiple hidden />
+
+          <div class="fields one-up">
+            <label class="field">
+              <span>Output name</span>
+              <input id="merge-name" type="text" value="merged" maxlength="80" />
+            </label>
+          </div>
+
+          <div class="toolbar">
+            <button id="merge-pick" type="button">Choose PDFs</button>
+            <button id="merge-run" class="primary" type="button" disabled>Merge PDFs</button>
+            <button id="merge-clear" type="button" disabled>Clear</button>
+          </div>
+
+          <p id="merge-status" class="status" data-kind="muted">Choose at least two PDFs.</p>
+          <div id="merge-empty" class="empty-state">No files yet.</div>
+          <div id="merge-list" class="stack" aria-live="polite"></div>
+
+          <section id="merge-results-wrap" class="results-wrap" hidden>
+            <div class="results-head"><h2>Result</h2></div>
+            <div id="merge-results" class="download-grid" aria-live="polite"></div>
+          </section>
+        </section>
+
+        <section id="extract-panel" class="tool-panel" aria-label="Extract pages" hidden>
+          <div id="extract-dropzone" class="dropzone" tabindex="0" role="button" aria-controls="extract-input" aria-label="Choose a PDF file or drop it here">
+            <strong>Add one PDF</strong>
+            <span>Extract one PDF or multiple PDFs from page ranges.</span>
+          </div>
+          <input id="extract-input" type="file" accept=".pdf,application/pdf" hidden />
+
+          <div class="fields two-up">
+            <label class="field">
+              <span>Output base name</span>
+              <input id="extract-name" type="text" value="extract" maxlength="80" />
+            </label>
+            <div class="summary-card">
+              <span>Document</span>
+              <strong id="extract-summary">No file selected</strong>
+            </div>
+          </div>
+
+          <section id="extract-preview-wrap" class="preview-wrap" hidden>
+            <div class="results-head">
+              <h2>Pages</h2>
+              <p id="extract-selection-hint" class="helper helper-inline">Type page ranges below to select pages.</p>
+            </div>
+            <div id="extract-preview" class="page-grid" aria-live="polite"></div>
+          </section>
+
+          <label class="field field-block">
+            <span>Page groups</span>
+            <textarea id="extract-groups" rows="6" placeholder="1-3&#10;4-6&#10;8,10-12"></textarea>
+          </label>
+          <p class="helper">One line becomes one output PDF. Examples: <code>1-3</code>, <code>5</code>, <code>8,10-12</code>.</p>
+
+          <div class="toolbar">
+            <button id="extract-pick" type="button">Choose PDF</button>
+            <button id="extract-run" class="primary" type="button" disabled>Extract</button>
+            <button id="extract-clear" type="button" disabled>Clear</button>
+          </div>
+
+          <p id="extract-status" class="status" data-kind="muted">No PDF selected.</p>
+
+          <section id="extract-results-wrap" class="results-wrap" hidden>
+            <div class="results-head"><h2>Outputs</h2></div>
+            <div id="extract-results" class="download-grid" aria-live="polite"></div>
+          </section>
+        </section>
+
+        <section id="reorder-panel" class="tool-panel" aria-label="Reorder pages" hidden>
+          <div id="reorder-dropzone" class="dropzone" tabindex="0" role="button" aria-controls="reorder-input" aria-label="Choose a PDF file or drop it here">
+            <strong>Add one PDF</strong>
+            <span>Drag and drop page thumbnails to rearrange them.</span>
+          </div>
+          <input id="reorder-input" type="file" accept=".pdf,application/pdf" hidden />
+
+          <div class="fields two-up">
+            <label class="field">
+              <span>Output name</span>
+              <input id="reorder-name" type="text" value="reordered" maxlength="80" />
+            </label>
+            <div class="summary-card">
+              <span>Document</span>
+              <strong id="reorder-summary">No file selected</strong>
+            </div>
+          </div>
+
+          <section id="reorder-preview-wrap" class="preview-wrap" hidden>
+            <div class="results-head">
+              <h2>Pages</h2>
+              <p class="helper helper-inline">Drag a page onto another page to move it.</p>
+            </div>
+            <div id="reorder-preview" class="page-grid page-grid-draggable" aria-live="polite"></div>
+          </section>
+
+          <div class="toolbar">
+            <button id="reorder-reset" type="button" disabled>Reset order</button>
+            <button id="reorder-reverse" type="button" disabled>Reverse</button>
+          </div>
+
+          <div class="toolbar toolbar-gap-top">
+            <button id="reorder-pick" type="button">Choose PDF</button>
+            <button id="reorder-run" class="primary" type="button" disabled>Save reordered PDF</button>
+            <button id="reorder-clear" type="button" disabled>Clear</button>
+          </div>
+
+          <p id="reorder-status" class="status" data-kind="muted">No PDF selected.</p>
+
+          <section id="reorder-results-wrap" class="results-wrap" hidden>
+            <div class="results-head"><h2>Result</h2></div>
+            <div id="reorder-results" class="download-grid" aria-live="polite"></div>
+          </section>
+        </section>
+      </section>
+
+      <p class="footer-note">Ready for GitHub Pages and other static hosting.</p>
+    </main>
+
+    <noscript>
+      <p class="no-script">JavaScript is required because every conversion runs directly in your browser.</p>
+    </noscript>
+
+    <script src="./pdf-core.js"></script>
+    <script src="./vendor/pdf-lib.min.js"></script>
+    <script src="./vendor/pdf.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
