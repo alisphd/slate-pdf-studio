@@ -27,6 +27,7 @@ What "online" means here:
 
 - JPG or JPEG to PDF
 - PDF to PNG or JPG
+- Compress a PDF in the browser
 - Merge multiple PDFs
 - Extract one PDF or many PDFs from page ranges
 - Reorder PDF pages with drag and drop
@@ -129,6 +130,26 @@ Steps:
 Result:
 - one new merged PDF is created
 - the source PDFs are unchanged
+
+### Compress PDF
+
+Use this when you want to reduce the size of a scanned or image-heavy PDF.
+
+Steps:
+1. Open `Compress PDF`
+2. Add one PDF
+3. Choose an output name and compression level
+4. Click `Compress PDF`
+
+Important note:
+- this tool rebuilds each page as a compressed image inside a new PDF
+- it usually works best for scanned documents, screenshots, and image-based PDFs
+- text-heavy PDFs may lose sharpness or searchable/selectable text
+- Harbor PDF still leaves the original file unchanged
+
+Result:
+- one new compressed PDF is created
+- the source PDF is unchanged
 
 ### Extract Pages
 

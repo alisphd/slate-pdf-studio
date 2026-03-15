@@ -13,6 +13,11 @@
       file: null,
       results: [],
     },
+    compress: {
+      file: null,
+      pageCount: 0,
+      results: [],
+    },
     merge: {
       files: [],
       results: [],
@@ -39,6 +44,7 @@
     modeButtons: Array.from(document.querySelectorAll(".mode-button")),
     jpgPanel: document.getElementById("jpg-panel"),
     imagesPanel: document.getElementById("images-panel"),
+    compressPanel: document.getElementById("compress-panel"),
     mergePanel: document.getElementById("merge-panel"),
     extractPanel: document.getElementById("extract-panel"),
     reorderPanel: document.getElementById("reorder-panel"),
@@ -67,6 +73,17 @@
     imagesResultsWrap: document.getElementById("images-results-wrap"),
     imagesResults: document.getElementById("images-results"),
     imagesDownloadAll: document.getElementById("images-download-all"),
+    compressDropzone: document.getElementById("compress-dropzone"),
+    compressInput: document.getElementById("compress-input"),
+    compressPick: document.getElementById("compress-pick"),
+    compressRun: document.getElementById("compress-run"),
+    compressClear: document.getElementById("compress-clear"),
+    compressName: document.getElementById("compress-name"),
+    compressPreset: document.getElementById("compress-preset"),
+    compressSummary: document.getElementById("compress-summary"),
+    compressStatus: document.getElementById("compress-status"),
+    compressResultsWrap: document.getElementById("compress-results-wrap"),
+    compressResults: document.getElementById("compress-results"),
     mergeDropzone: document.getElementById("merge-dropzone"),
     mergeInput: document.getElementById("merge-input"),
     mergePick: document.getElementById("merge-pick"),
@@ -111,6 +128,7 @@
   const panelMap = {
     "jpg-to-pdf": elements.jpgPanel,
     "pdf-to-images": elements.imagesPanel,
+    "compress-pdf": elements.compressPanel,
     "merge-pdf": elements.mergePanel,
     "extract-pages": elements.extractPanel,
     "reorder-pages": elements.reorderPanel,
@@ -122,6 +140,7 @@
   renderMode()
   renderJpgQueue()
   renderImagesState()
+  renderCompressState()
   renderMergeQueue()
   renderExtractState()
   renderReorderState()
@@ -139,6 +158,7 @@
 
     bindDropzone(elements.jpgDropzone, elements.jpgInput, true, addJpgFiles)
     bindDropzone(elements.imagesDropzone, elements.imagesInput, false, setImagesFileFromList)
+    bindDropzone(elements.compressDropzone, elements.compressInput, false, setCompressFileFromList)
     bindDropzone(elements.mergeDropzone, elements.mergeInput, true, addMergeFiles)
     bindDropzone(elements.extractDropzone, elements.extractInput, false, setExtractFileFromList)
     bindDropzone(elements.reorderDropzone, elements.reorderInput, false, setReorderFileFromList)
@@ -174,6 +194,21 @@
       }
     })
     elements.imagesDownloadAll.addEventListener("click", downloadAllImages)
+
+    elements.compressPick.addEventListener("click", function () {
+      if (!state.busy) {
+        elements.compressInput.click()
+      }
+    })
+    elements.compressRun.addEventListener("click", function () {
+      void compressPdf()
+    })
+    elements.compressClear.addEventListener("click", function () {
+      if (!state.busy) {
+        clearCompressState()
+        setStatus(elements.compressStatus, "Cleared the selected PDF.", "muted")
+      }
+    })
 
     elements.mergePick.addEventListener("click", function () {
       if (!state.busy) {
@@ -228,6 +263,7 @@
     window.addEventListener("beforeunload", function () {
       revokeCollectionUrls(state.jpgFiles)
       revokeCollectionUrls(state.images.results)
+      revokeCollectionUrls(state.compress.results)
       revokeCollectionUrls(state.merge.files)
       revokeCollectionUrls(state.merge.results)
       revokeCollectionUrls(state.extract.previews)
@@ -372,6 +408,7 @@
     renderServerNote()
     updateControls()
     renderImagesState()
+    renderCompressState()
     renderMergeQueue()
     renderExtractState()
     renderReorderState()
@@ -588,6 +625,140 @@
       setStatus(elements.imagesStatus, "Created " + state.images.results.length + " image(s) in your browser.", "success")
     } catch (error) {
       setStatus(elements.imagesStatus, error && error.message ? error.message : "The PDF could not be exported.", "error")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function setCompressFileFromList(fileListLike) {
+    const file = Array.from(fileListLike || []).find(isPdfFile)
+    if (!file) {
+      setStatus(elements.compressStatus, "Choose a PDF file.", "error")
+      return
+    }
+
+    revokeCollectionUrls(state.compress.results)
+    state.compress.file = file
+    state.compress.pageCount = 0
+    state.compress.results = []
+    elements.compressName.value = sanitizeFilename(baseNameFromFile(file.name) + "-compressed") || "compressed"
+    renderCompressState()
+
+    setBusy(true)
+    setStatus(elements.compressStatus, "Inspecting the PDF in your browser...", "muted")
+
+    try {
+      state.compress.pageCount = await inspectPdfFile(file)
+      renderCompressState()
+      setStatus(elements.compressStatus, pageCountText(state.compress.pageCount) + " ready to compress.", "success")
+    } catch (error) {
+      clearCompressState()
+      setStatus(elements.compressStatus, error && error.message ? error.message : "The PDF could not be inspected.", "error")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function compressPdf() {
+    if (state.busy || !state.compress.file || !state.server.workerAvailable) {
+      return
+    }
+
+    setBusy(true)
+    revokeCollectionUrls(state.compress.results)
+    state.compress.results = []
+    renderCompressState()
+    setStatus(elements.compressStatus, "Compressing the PDF in your browser...", "muted")
+
+    try {
+      await ensurePdfEngines()
+      const sourceFile = state.compress.file
+      const outputName = sanitizeFilename(elements.compressName.value) || baseNameFromFile(sourceFile.name) || "compressed"
+      const preset = getCompressionPreset(elements.compressPreset.value)
+      const sourceBytes = await readFileBytes(sourceFile)
+      const sourceDocument = await window.PDFLib.PDFDocument.load(sourceBytes, {
+        updateMetadata: false,
+      })
+      const previewDocument = await openPdfInPdfJs(sourceBytes)
+      const outputDocument = await window.PDFLib.PDFDocument.create()
+
+      try {
+        for (let index = 0; index < previewDocument.numPages; index += 1) {
+          setStatus(
+            elements.compressStatus,
+            "Compressing page " + (index + 1) + " of " + previewDocument.numPages + "...",
+            "muted"
+          )
+
+          const sourcePage = sourceDocument.getPage(index)
+          const page = await previewDocument.getPage(index + 1)
+          const viewport = page.getViewport({ scale: preset.scale })
+          const canvas = document.createElement("canvas")
+          canvas.width = Math.max(1, Math.ceil(viewport.width))
+          canvas.height = Math.max(1, Math.ceil(viewport.height))
+          const context = canvas.getContext("2d", { alpha: false })
+
+          if (!context) {
+            throw new Error("This browser cannot render PDF pages.")
+          }
+
+          context.fillStyle = "#ffffff"
+          context.fillRect(0, 0, canvas.width, canvas.height)
+
+          await page.render({
+            canvasContext: context,
+            viewport: viewport,
+          }).promise
+
+          const imageBlob = await canvasToJpegBlob(canvas, preset.quality)
+          const imageBytes = new Uint8Array(await imageBlob.arrayBuffer())
+          const image = await outputDocument.embedJpg(imageBytes)
+          const outputPage = outputDocument.addPage([sourcePage.getWidth(), sourcePage.getHeight()])
+
+          outputPage.drawImage(image, {
+            x: 0,
+            y: 0,
+            width: outputPage.getWidth(),
+            height: outputPage.getHeight(),
+          })
+
+          page.cleanup()
+          canvas.width = 0
+          canvas.height = 0
+        }
+      } finally {
+        if (typeof previewDocument.cleanup === "function") {
+          previewDocument.cleanup()
+        }
+        if (typeof previewDocument.destroy === "function") {
+          await previewDocument.destroy()
+        }
+      }
+
+      const outputBytes = await outputDocument.save()
+      const reductionLabel = buildCompressionSummary(sourceFile.size, outputBytes.length)
+      const reducedSize = outputBytes.length < sourceFile.size
+      state.compress.results = [
+        createPdfDownloadItem(outputBytes, outputName + ".pdf", {
+          label: "Compressed PDF",
+          pageCount: outputDocument.getPageCount(),
+          details: [
+            "Preset " + preset.label,
+            "Original " + formatBytes(sourceFile.size),
+            reductionLabel,
+          ],
+        }),
+      ]
+      renderCompressState()
+      setStatus(
+        elements.compressStatus,
+        reducedSize
+          ? "Compressed PDF ready to download."
+          : "Compression finished. This preset did not make the file smaller, so you may want to keep the original or try a stronger preset.",
+        reducedSize ? "success" : "muted"
+      )
+    } catch (error) {
+      setStatus(elements.compressStatus, error && error.message ? error.message : "The PDF could not be compressed.", "error")
     } finally {
       setBusy(false)
     }
@@ -1101,6 +1272,22 @@
     updateControls()
   }
 
+  function renderCompressState() {
+    if (!state.compress.file) {
+      elements.compressSummary.textContent = state.server.workerAvailable
+        ? "No file selected"
+        : state.server.message || "No file selected"
+    } else if (state.compress.pageCount > 0) {
+      elements.compressSummary.textContent =
+        state.compress.file.name + " • " + pageCountText(state.compress.pageCount) + " • " + formatBytes(state.compress.file.size)
+    } else {
+      elements.compressSummary.textContent = state.compress.file.name + " • loading pages"
+    }
+
+    renderDownloadResults(elements.compressResultsWrap, elements.compressResults, state.compress.results)
+    updateControls()
+  }
+
   function renderMergeQueue() {
     elements.mergeEmpty.hidden = state.merge.files.length > 0
     elements.mergeList.innerHTML = state.merge.files
@@ -1209,10 +1396,17 @@
         const name = escapeHtml(item.name)
         const metaParts = []
         if (item.label) {
-          metaParts.push("Pages " + escapeHtml(item.label))
+          metaParts.push(escapeHtml(item.label))
         }
         if (item.pageCount) {
           metaParts.push(pageCountText(item.pageCount))
+        }
+        if (Array.isArray(item.details)) {
+          item.details.forEach(function (detail) {
+            if (detail) {
+              metaParts.push(escapeHtml(detail))
+            }
+          })
         }
         return [
           '<article class="download-card">',
@@ -1230,6 +1424,7 @@
   function updateControls() {
     const hasJpgFiles = state.jpgFiles.length > 0
     const hasImagesFile = Boolean(state.images.file)
+    const hasCompressFile = Boolean(state.compress.file)
     const hasMergeFiles = state.merge.files.length > 0
     const hasExtractFile = Boolean(state.extract.file)
     const hasReorderFile = Boolean(state.reorder.file)
@@ -1252,6 +1447,12 @@
     elements.imagesDpi.disabled = state.busy || !workerReady
     elements.imagesName.disabled = state.busy
     elements.imagesDownloadAll.disabled = state.busy || state.images.results.length < 2
+
+    elements.compressPick.disabled = state.busy || !workerReady
+    elements.compressRun.disabled = state.busy || !workerReady || !hasCompressFile
+    elements.compressClear.disabled = state.busy || !hasCompressFile
+    elements.compressName.disabled = state.busy || !workerReady
+    elements.compressPreset.disabled = state.busy || !workerReady
 
     elements.mergePick.disabled = state.busy || !workerReady
     elements.mergeRun.disabled = state.busy || !workerReady || state.merge.files.length < 2
@@ -1283,6 +1484,14 @@
     state.images.file = null
     state.images.results = []
     renderImagesState()
+  }
+
+  function clearCompressState() {
+    revokeCollectionUrls(state.compress.results)
+    state.compress.file = null
+    state.compress.pageCount = 0
+    state.compress.results = []
+    renderCompressState()
   }
 
   function clearMergeState() {
@@ -1647,12 +1856,50 @@
     return Math.max(0.5, dpi / 72)
   }
 
+  function getCompressionPreset(value) {
+    const presetMap = {
+      balanced: {
+        label: "Balanced",
+        scale: getPdfScaleFromDpi(110),
+        quality: 0.72,
+      },
+      smaller: {
+        label: "Smaller file",
+        scale: getPdfScaleFromDpi(92),
+        quality: 0.58,
+      },
+      smallest: {
+        label: "Smallest file",
+        scale: getPdfScaleFromDpi(72),
+        quality: 0.42,
+      },
+    }
+
+    return presetMap[value] || presetMap.balanced
+  }
+
+  function buildCompressionSummary(originalSize, compressedSize) {
+    const savedBytes = Math.max(0, originalSize - compressedSize)
+    const reducedPercent = originalSize > 0 ? Math.round((savedBytes / originalSize) * 100) : 0
+
+    if (compressedSize < originalSize) {
+      return "Compressed " + formatBytes(compressedSize) + " (" + reducedPercent + "% smaller)"
+    }
+
+    if (compressedSize === originalSize) {
+      return "Compressed " + formatBytes(compressedSize) + " (same size)"
+    }
+
+    return "Compressed " + formatBytes(compressedSize) + " (" + formatBytes(compressedSize - originalSize) + " larger)"
+  }
+
   function createPdfDownloadItem(pdfBytes, filename, meta) {
     const blob = new Blob([pdfBytes], { type: "application/pdf" })
     return {
       name: filename,
       label: meta && meta.label ? meta.label : null,
       pageCount: meta && meta.pageCount ? meta.pageCount : null,
+      details: meta && Array.isArray(meta.details) ? meta.details : [],
       downloadUrl: URL.createObjectURL(blob),
     }
   }

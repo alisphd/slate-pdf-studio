@@ -23,7 +23,7 @@
           </div>
         </div>
         <p class="intro">
-          Merge, extract, rearrange, and convert PDFs without uploading your documents or touching the originals.
+          Compress, merge, extract, rearrange, and convert PDFs without uploading your documents or touching the originals.
         </p>
         <div class="trust-strip" aria-label="Privacy highlights">
           <span class="trust-pill">No uploads</span>
@@ -39,6 +39,9 @@
           </button>
           <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="pdf-to-images">
             PDF to Images
+          </button>
+          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="compress-pdf">
+            Compress PDF
           </button>
           <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="merge-pdf">
             Merge PDFs
@@ -180,6 +183,50 @@
           <section id="merge-results-wrap" class="results-wrap" hidden>
             <div class="results-head"><h2>Result</h2></div>
             <div id="merge-results" class="download-grid" aria-live="polite"></div>
+          </section>
+        </section>
+
+        <section id="compress-panel" class="tool-panel" aria-label="Compress PDF" hidden>
+          <div id="compress-dropzone" class="dropzone" tabindex="0" role="button" aria-controls="compress-input" aria-label="Choose a PDF file or drop it here">
+            <strong>Add one PDF</strong>
+            <span>Shrink scanned or image-heavy PDFs without uploading them.</span>
+          </div>
+          <input id="compress-input" type="file" accept=".pdf,application/pdf" hidden />
+
+          <div class="fields three-up">
+            <label class="field">
+              <span>Output name</span>
+              <input id="compress-name" type="text" value="compressed" maxlength="80" />
+            </label>
+            <label class="field">
+              <span>Compression level</span>
+              <select id="compress-preset">
+                <option value="balanced">Balanced</option>
+                <option value="smaller">Smaller file</option>
+                <option value="smallest">Smallest file</option>
+              </select>
+            </label>
+            <div class="summary-card">
+              <span>Document</span>
+              <strong id="compress-summary">No file selected</strong>
+            </div>
+          </div>
+
+          <p class="helper">
+            Best for scanned or image-heavy PDFs. Harbor PDF keeps the original file untouched, but compressed exports rebuild pages as images so searchable text may be reduced.
+          </p>
+
+          <div class="toolbar">
+            <button id="compress-pick" type="button">Choose PDF</button>
+            <button id="compress-run" class="primary" type="button" disabled>Compress PDF</button>
+            <button id="compress-clear" type="button" disabled>Clear</button>
+          </div>
+
+          <p id="compress-status" class="status" data-kind="muted">No PDF selected.</p>
+
+          <section id="compress-results-wrap" class="results-wrap" hidden>
+            <div class="results-head"><h2>Result</h2></div>
+            <div id="compress-results" class="download-grid" aria-live="polite"></div>
           </section>
         </section>
 

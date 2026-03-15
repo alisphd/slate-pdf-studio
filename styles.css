@@ -119,7 +119,7 @@ h1 {
 
 .mode-switch {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   background: #ecf1f3;
@@ -273,6 +273,7 @@ h1 {
 .summary-card strong {
   font-size: 0.98rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .toolbar {
