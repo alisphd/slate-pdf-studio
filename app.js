@@ -362,11 +362,11 @@
       await ensurePdfEngines()
       state.server.available = true
       state.server.workerAvailable = true
-      state.server.message = "Runs entirely in your browser. No uploads or server processing."
+      state.server.message = "Runs in your browser only. Your originals stay untouched on this device."
     } catch (error) {
       state.server.available = false
       state.server.workerAvailable = false
-      state.server.message = error && error.message ? error.message : "Browser PDF tools could not be started."
+      state.server.message = error && error.message ? error.message : "Harbor PDF could not start its browser tools. Refresh the page and try again."
     }
 
     renderServerNote()
@@ -1039,7 +1039,7 @@
   }
 
   function renderServerNote() {
-    elements.serverNote.textContent = state.server.message || "Runs entirely in your browser. No uploads or server processing."
+    elements.serverNote.textContent = state.server.message || "Runs in your browser only. Your originals stay untouched on this device."
     elements.serverNote.dataset.kind = state.server.workerAvailable ? "success" : "error"
   }
 
@@ -1816,6 +1816,7 @@
     return "item-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10)
   }
 })()
+
 
 
 

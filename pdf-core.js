@@ -249,7 +249,7 @@
       addStreamObject(reference.contentId, "", buildPageContent(page, imageName))
     })
 
-    addObject(infoId, "<< /Producer (Slate PDF Studio) /Creator (Codex) >>")
+    addObject(infoId, "<< /Producer (Harbor PDF) /Creator (Codex) >>")
 
     const maxObjectId = infoId
     const xrefOffset = currentOffset
@@ -292,4 +292,5 @@
     mmToPoints: mmToPoints,
   }
 })
+
 

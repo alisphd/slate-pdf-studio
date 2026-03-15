@@ -1,0 +1,15 @@
+﻿<svg width="128" height="128" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="harbor-favicon-bg" x1="32" y1="20" x2="224" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C4760" />
+      <stop offset="1" stop-color="#0E2433" />
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="56" fill="url(#harbor-favicon-bg)" />
+  <path d="M86 48H146L182 84V166C182 179.255 171.255 190 158 190H86C72.7452 190 62 179.255 62 166V72C62 58.7452 72.7452 48 86 48Z" fill="#F7FBFD"/>
+  <path d="M146 48V76C146 84.8366 153.163 92 162 92H182" fill="#D7E6EF"/>
+  <path d="M96 110H148" stroke="#17384C" stroke-width="12" stroke-linecap="round"/>
+  <path d="M96 136H158" stroke="#94A7B4" stroke-width="10" stroke-linecap="round"/>
+  <path d="M74 172V194C74 204.493 82.5066 213 93 213H151C161.493 213 170 204.493 170 194V172" stroke="#D4A05D" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="122" cy="172" r="10" fill="#D4A05D"/>
+</svg>

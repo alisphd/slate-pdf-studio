@@ -1,11 +1,12 @@
 ﻿{
-  "name": "slate-pdf-studio",
+  "name": "harbor-pdf",
   "private": true,
   "version": "1.0.0",
   "type": "commonjs",
-  "description": "Static browser-based PDF tools ready for GitHub Pages.",
+  "description": "Harbor PDF is a privacy-first browser PDF toolkit for local and GitHub Pages use.",
   "scripts": {
     "start": "node server.js",
     "test": "node tests/smoke-test.js && node tests/pdf-toolkit-smoke.js"
   }
 }
+

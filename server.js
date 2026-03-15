@@ -9,7 +9,7 @@ const { spawn } = require("node:child_process")
 const HOST = "127.0.0.1"
 const PORT = Number(process.env.PORT || 4173)
 const ROOT = __dirname
-const TEMP_ROOT = path.join(os.tmpdir(), "local-file-converter")
+const TEMP_ROOT = path.join(os.tmpdir(), "harbor-pdf")
 const SESSION_TTL_MS = 30 * 60 * 1000
 const MAX_RAW_UPLOAD_BYTES = 150 * 1024 * 1024
 const MAX_JSON_UPLOAD_BYTES = 250 * 1024 * 1024
@@ -28,8 +28,9 @@ const STATIC_FILES = {
   "/vendor/pdf-lib.min.js": "vendor/pdf-lib.min.js",
   "/vendor/pdf.min.js": "vendor/pdf.min.js",
   "/vendor/pdf.worker.min.js": "vendor/pdf.worker.min.js",
+  "/assets/harbor-mark.svg": "assets/harbor-mark.svg",
+  "/assets/favicon.svg": "assets/favicon.svg",
 }
-
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -763,7 +764,7 @@ function startServer() {
   return new Promise(function (resolve, reject) {
     server.once("error", reject)
     server.listen(PORT, HOST, function () {
-      console.log("Slate PDF Studio running at http://" + HOST + ":" + PORT)
+      console.log("Harbor PDF running at http://" + HOST + ":" + PORT)
       resolve(server)
     })
   })
@@ -788,6 +789,8 @@ module.exports = {
   sanitizeBaseName: sanitizeBaseName,
   startServer: startServer,
 }
+
+
 
 
 

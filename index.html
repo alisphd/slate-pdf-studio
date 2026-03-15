@@ -3,17 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Slate PDF Studio</title>
+    <title>Harbor PDF</title>
+    <meta
+      name="description"
+      content="Harbor PDF is a private PDF toolkit that runs in your browser so your original documents stay on your device."
+    />
+    <meta name="theme-color" content="#17384c" />
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="shell">
       <header class="header">
-        <p class="eyebrow">Slate PDF Studio</p>
-        <h1>Professional PDF tools that stay in your browser.</h1>
+        <div class="brand">
+          <img class="brand-mark" src="./assets/harbor-mark.svg" alt="Harbor PDF logo" width="88" height="88" />
+          <div class="brand-copy">
+            <p class="eyebrow">Harbor PDF</p>
+            <h1>Private PDF tools with a safe place to work.</h1>
+          </div>
+        </div>
         <p class="intro">
-          Convert, merge, extract, and rearrange files without uploading a single document.
+          Merge, extract, rearrange, and convert PDFs without uploading your documents or touching the originals.
         </p>
+        <div class="trust-strip" aria-label="Privacy highlights">
+          <span class="trust-pill">No uploads</span>
+          <span class="trust-pill">Original files stay untouched</span>
+          <span class="trust-pill">Works locally or on GitHub Pages</span>
+        </div>
       </header>
 
       <section class="panel" aria-label="PDF tools">
@@ -36,7 +52,7 @@
         </div>
 
         <p id="server-note" class="note" data-kind="muted">
-          Runs entirely in your browser. No uploads or server processing.
+          Runs in your browser only. Your originals stay untouched on this device.
         </p>
 
         <section id="jpg-panel" class="tool-panel" aria-label="JPG to PDF">
@@ -259,7 +275,7 @@
         </section>
       </section>
 
-      <p class="footer-note">Ready for GitHub Pages and other static hosting.</p>
+      <p class="footer-note">Harbor PDF always creates fresh downloads and never overwrites the files you open.</p>
     </main>
 
     <noscript>
