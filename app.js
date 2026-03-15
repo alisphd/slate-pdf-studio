@@ -1,6 +1,7 @@
 ﻿(function () {
   const state = {
     mode: "jpg-to-pdf",
+    theme: getInitialTheme(),
     busy: false,
     server: {
       checked: false,
@@ -40,6 +41,8 @@
 
   const elements = {
     body: document.body,
+    themeToggle: document.getElementById("theme-toggle"),
+    themeColorMeta: document.getElementById("theme-color-meta"),
     serverNote: document.getElementById("server-note"),
     modeButtons: Array.from(document.querySelectorAll(".mode-button")),
     jpgPanel: document.getElementById("jpg-panel"),
@@ -136,6 +139,7 @@
 
   let pdfRuntimeReady = false
 
+  applyTheme()
   bindEvents()
   renderMode()
   renderJpgQueue()
@@ -147,6 +151,10 @@
   void checkServerAvailability()
 
   function bindEvents() {
+    elements.themeToggle.addEventListener("click", function () {
+      setTheme(state.theme === "dark" ? "light" : "dark")
+    })
+
     elements.modeButtons.forEach(function (button) {
       button.addEventListener("click", function () {
         if (!state.busy) {
@@ -271,6 +279,51 @@
       revokeCollectionUrls(state.reorder.pages)
       revokeCollectionUrls(state.reorder.results)
     })
+  }
+
+  function getInitialTheme() {
+    try {
+      const savedTheme = window.localStorage.getItem("harbor-pdf-theme")
+      if (savedTheme === "dark" || savedTheme === "light") {
+        return savedTheme
+      }
+    } catch (error) {
+      // Ignore storage issues and fall back to system preference.
+    }
+
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark"
+    }
+
+    return "light"
+  }
+
+  function setTheme(nextTheme) {
+    state.theme = nextTheme === "dark" ? "dark" : "light"
+
+    try {
+      window.localStorage.setItem("harbor-pdf-theme", state.theme)
+    } catch (error) {
+      // Ignore storage issues and keep the in-memory theme.
+    }
+
+    applyTheme()
+  }
+
+  function applyTheme() {
+    const isDark = state.theme === "dark"
+    elements.body.dataset.theme = isDark ? "dark" : "light"
+
+    if (elements.themeToggle) {
+      elements.themeToggle.setAttribute("aria-pressed", String(isDark))
+      elements.themeToggle.querySelector(".theme-toggle-label").textContent = isDark ? "Day mode" : "Night mode"
+      elements.themeToggle.setAttribute("aria-label", isDark ? "Switch to day mode" : "Switch to night mode")
+      elements.themeToggle.title = isDark ? "Switch to day mode" : "Switch to night mode"
+    }
+
+    if (elements.themeColorMeta) {
+      elements.themeColorMeta.setAttribute("content", isDark ? "#0f1b27" : "#17384c")
+    }
   }
 
   function bindDropzone(dropzone, input, multiple, onFiles) {

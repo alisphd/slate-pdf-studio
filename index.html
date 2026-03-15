@@ -8,19 +8,24 @@
       name="description"
       content="Harbor PDF is a private PDF toolkit that runs in your browser so your original documents stay on your device."
     />
-    <meta name="theme-color" content="#17384c" />
+    <meta id="theme-color-meta" name="theme-color" content="#17384c" />
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="shell">
       <header class="header">
-        <div class="brand">
-          <img class="brand-mark" src="./assets/harbor-mark.svg" alt="Harbor PDF logo" width="88" height="88" />
-          <div class="brand-copy">
-            <p class="eyebrow">Harbor PDF</p>
-            <h1>Private PDF tools with a safe place to work.</h1>
+        <div class="header-top">
+          <div class="brand">
+            <img class="brand-mark" src="./assets/harbor-mark.svg" alt="Harbor PDF logo" width="88" height="88" />
+            <div class="brand-copy">
+              <p class="eyebrow">Harbor PDF</p>
+              <h1>Private PDF tools with a safe place to work.</h1>
+            </div>
           </div>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">
+            <span class="theme-toggle-label">Night mode</span>
+          </button>
         </div>
         <p class="intro">
           Compress, merge, extract, rearrange, and convert PDFs without uploading your documents or touching the originals.
